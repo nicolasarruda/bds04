@@ -1,26 +1,24 @@
 package com.devsuperior.bds04.services;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.devsuperior.bds04.dto.RoleDTO;
 import com.devsuperior.bds04.dto.UserDTO;
+import com.devsuperior.bds04.dto.UserInsertDTO;
 import com.devsuperior.bds04.entities.Role;
 import com.devsuperior.bds04.entities.User;
 import com.devsuperior.bds04.repositories.RoleRepository;
 import com.devsuperior.bds04.repositories.UserRepository;
 
 @Service
-public class UserService implements UserDetailsService{
+public class UserService implements UserDetailsService {
 
 	private static Logger logger = LoggerFactory.getLogger(UserService.class);
 	
@@ -28,16 +26,14 @@ public class UserService implements UserDetailsService{
 	private UserRepository repository;
 	
 	@Autowired
+	private BCryptPasswordEncoder passwordEncoder;
+	
+	@Autowired
 	private RoleRepository roleRepository;
-	
-	@Transactional(readOnly = true)
-	public List<UserDTO> findAll(){
-		List<User> list = repository.findAll();
-		return list.stream().map(x -> new UserDTO(x)).collect(Collectors.toList());
-	}
-	
-	public UserDTO insert(UserDTO dto) {
+
+	public UserDTO insert(UserInsertDTO dto) {
 		User entity = new User();
+		entity.setPassword(passwordEncoder.encode(dto.getPassword()));
 		CopyToDto(dto, entity);
 		entity = repository.save(entity);
 		return new UserDTO(entity);
@@ -45,9 +41,8 @@ public class UserService implements UserDetailsService{
 
 	private void CopyToDto(UserDTO dto, User entity) {
 		entity.setEmail(dto.getEmail());
-		entity.setPassword(dto.getPassword());
-		entity.getRoles().clear();
 		
+		entity.getRoles().clear();
 		for (RoleDTO roleDto: dto.getRoles()) {
 			Role role = roleRepository.getOne(roleDto.getId());
 			entity.getRoles().add(role);

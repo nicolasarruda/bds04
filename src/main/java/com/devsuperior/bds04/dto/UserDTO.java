@@ -11,17 +11,15 @@ public class UserDTO implements Serializable {
 	
 	private Long id;
 	private String email;
-	private String password;
 	
 	private Set<RoleDTO> roles = new HashSet<>();
 	
 	public UserDTO() {
 	}
 
-	public UserDTO(Long id, String email, String password) {
+	public UserDTO(Long id, String email) {
 		this.id = id;
 		this.email = email;
-		this.password = password;
 	}
 	
 	public UserDTO(User entity) {
@@ -45,15 +43,7 @@ public class UserDTO implements Serializable {
 	public void setEmail(String email) {
 		this.email = email;
 	}
-
-	public String getPassword() {
-		return password;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
-	}
-
+	
 	public Set<RoleDTO> getRoles() {
 		return roles;
 	}
